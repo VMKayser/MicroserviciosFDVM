@@ -1,0 +1,29 @@
+# Dependencias
+node_modules/
+
+# Bases de datos locales (se regeneran con npm run seed)
+*.sqlite
+*.sqlite3
+*.db
+
+# Carpetas locales que no van al repo.
+# El repo solo publica tareas/ y laboratorios/.
+repositorio/
+apuntes/
+proyecto/
+examenes/
+recursos/
+
+# Config local de herramientas
+.claude/
+.env
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*

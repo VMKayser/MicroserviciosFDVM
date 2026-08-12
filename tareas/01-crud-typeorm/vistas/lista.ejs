@@ -1,0 +1,42 @@
+<%- include('parciales/cabecera') %>
+
+<h2>Lista de candidatos</h2>
+
+<% if (candidatos.length === 0) { %>
+  <p>No hay candidatos registrados. <a href="/nuevo">Registrar el primero</a>.</p>
+<% } else { %>
+  <table>
+    <thead>
+      <tr>
+        <th>CI</th>
+        <th>Nombres</th>
+        <th>Apellido 1</th>
+        <th>Apellido 2</th>
+        <th>Cargo</th>
+        <th>Lugar</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% candidatos.forEach(c => { %>
+        <tr>
+          <td><%= c.ci %></td>
+          <td><%= c.nombres %></td>
+          <td><%= c.apellido1 %></td>
+          <td><%= c.apellido2 %></td>
+          <td><%= c.cargo ? c.cargo.nombre : '-' %></td>
+          <td><%= c.lugar ? c.lugar.nombre : '-' %></td>
+          <td class="acciones">
+            <a href="/editar/<%= c.ci %>">Editar</a>
+            <form action="/eliminar/<%= c.ci %>" method="POST"
+                  onsubmit="return confirm('¿Eliminar a <%= c.nombres %>?')">
+              <button type="submit" class="peligro">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+<% } %>
+
+<%- include('parciales/pie') %>

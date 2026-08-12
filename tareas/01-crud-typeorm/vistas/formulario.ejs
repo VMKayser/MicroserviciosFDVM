@@ -1,0 +1,59 @@
+<%- include('parciales/cabecera') %>
+
+<h2><%= titulo %></h2>
+
+<% if (error) { %>
+  <p class="error"><%= error %></p>
+<% } %>
+
+<form action="<%= accion %>" method="POST">
+  <label>CI
+    <input type="text" name="ci" maxlength="12" required
+           value="<%= candidato ? candidato.ci : '' %>"
+           <%= accion === '/nuevo' ? '' : 'readonly' %>>
+  </label>
+
+  <label>Nombres
+    <input type="text" name="nombres" maxlength="60" required
+           value="<%= candidato ? candidato.nombres : '' %>">
+  </label>
+
+  <label>Primer apellido
+    <input type="text" name="apellido1" maxlength="30" required
+           value="<%= candidato ? candidato.apellido1 : '' %>">
+  </label>
+
+  <label>Segundo apellido
+    <input type="text" name="apellido2" maxlength="40"
+           value="<%= candidato ? candidato.apellido2 : '' %>">
+  </label>
+
+  <label>Cargo
+    <select name="cargo_id" required>
+      <% cargos.forEach(cargo => { %>
+        <option value="<%= cargo.id %>"
+          <%= candidato && Number(candidato.cargo_id) === cargo.id ? 'selected' : '' %>>
+          <%= cargo.nombre %>
+        </option>
+      <% }) %>
+    </select>
+  </label>
+
+  <label>Lugar
+    <select name="lugar_id" required>
+      <% lugares.forEach(lugar => { %>
+        <option value="<%= lugar.id %>"
+          <%= candidato && Number(candidato.lugar_id) === lugar.id ? 'selected' : '' %>>
+          <%= lugar.nombre %>
+        </option>
+      <% }) %>
+    </select>
+  </label>
+
+  <div class="acciones">
+    <button type="submit">Guardar</button>
+    <a href="/">Cancelar</a>
+  </div>
+</form>
+
+<%- include('parciales/pie') %>
