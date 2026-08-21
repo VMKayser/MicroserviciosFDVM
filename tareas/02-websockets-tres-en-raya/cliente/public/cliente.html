@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cliente WebSocket - Tres en Raya</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Juego de Tres en Raya</h1>
+    <h3 id="mensaje">Conectando al servidor...</h3>
+
+    <div id="tablero">
+        <button onclick="jugar(0,0)" id="c00">-</button>
+        <button onclick="jugar(0,1)" id="c01">-</button>
+        <button onclick="jugar(0,2)" id="c02">-</button><br>
+        <button onclick="jugar(1,0)" id="c10">-</button>
+        <button onclick="jugar(1,1)" id="c11">-</button>
+        <button onclick="jugar(1,2)" id="c12">-</button><br>
+        <button onclick="jugar(2,0)" id="c20">-</button>
+        <button onclick="jugar(2,1)" id="c21">-</button>
+        <button onclick="jugar(2,2)" id="c22">-</button>
+    </div>
+
+    <br>
+    <button onclick="reiniciar()">Reiniciar Juego</button>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080');
+
+        socket.onopen = function () {
+            console.log("Conectado al servidor WebSocket");
+        };
+
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            document.getElementById('mensaje').innerText = data.mensaje;
+
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const btn = document.getElementById(`c${i}${j}`);
+                    btn.innerText = data.tablero[i][j] !== ' ' ? data.tablero[i][j] : '-';
+                }
+            }
+        };
+
+        function jugar(fila, columna) {
+            socket.send(`${fila},${columna}`);
+        }
+
+        function reiniciar() {
+            socket.send('reiniciar');
+        }
+
+        socket.onclose = function () {
+            console.log("Conexión cerrada.");
+            document.getElementById('mensaje').innerText = "Desconectado del servidor.";
+        };
+    </script>
+</body>
+</html>
