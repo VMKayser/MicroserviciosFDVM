@@ -1,0 +1,50 @@
+services:
+  api:
+    build: ./api
+    container_name: api_tareas
+    ports:
+      - "${API_PORT}:3000"
+    environment:
+      PORT: 3000
+      MONGO_URL: mongodb://mongo:27017/${MONGO_DB}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - red_practica
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    container_name: mongo_tareas
+    volumes:
+      - datos_mongo:/data/db
+    networks:
+      - red_practica
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: mongo_ui
+    ports:
+      - "${MONGOEXPRESS_PORT}:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongo
+    networks:
+      - red_practica
+
+volumes:
+  datos_mongo:
+
+networks:
+  red_practica:
+    driver: bridge

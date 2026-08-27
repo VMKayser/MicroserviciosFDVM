@@ -1,0 +1,12 @@
+{
+  "name": "api-tareas",
+  "version": "2.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0"
+  }
+}

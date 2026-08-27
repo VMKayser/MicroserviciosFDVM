@@ -1,0 +1,16 @@
+# ---------- Etapa 1: construcción ----------
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# ---------- Etapa 2: imagen final ----------
+FROM node:20-alpine
+WORKDIR /app
+# Ejecutar como usuario sin privilegios (buena práctica de seguridad)
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=builder /app/node_modules ./node_modules
+COPY . .
+USER app
+EXPOSE 3000
+CMD ["node", "app.js"]
