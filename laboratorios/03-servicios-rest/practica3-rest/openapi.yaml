@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: API de Usuarios
+  version: 1.0.0
+  description: Servicio REST de la Practica 3 de COM-600
+servers:
+  - url: http://localhost:3000/v1
+paths:
+  /usuarios:
+    get:
+      summary: Lista usuarios con paginacion
+      parameters:
+        - { name: pagina, in: query, schema: { type: integer } }
+        - { name: limite, in: query, schema: { type: integer } }
+      responses:
+        "200":
+          description: Pagina de usuarios
+    post:
+      summary: Crea un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, correo, edad]
+              properties:
+                nombre: { type: string, example: "Carlos Gomez" }
+                correo: { type: string, example: "carlos@usfx.bo" }
+                edad: { type: integer, example: 25 }
+      responses:
+        "201":
+          description: Creado, con cabecera Location
+        "400":
+          description: Datos invalidos
+        "409":
+          description: Correo ya registrado
+  /usuarios/{id}:
+    get:
+      summary: Obtiene un usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Usuario encontrado
+        "404":
+          description: No encontrado
