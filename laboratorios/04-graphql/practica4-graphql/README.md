@@ -114,3 +114,30 @@ mutation {
   }
 }
 ```
+
+---
+
+## 📊 Medición y Comparativa: REST vs GraphQL (Laboratorio 7)
+
+### Tabla de Mediciones Observadas
+
+| Medida | REST | GraphQL |
+| :--- | :---: | :---: |
+| **Viajes de red del cliente** | 3 llamadas secuenciales | 1 única consulta (`venta(id:1)`) |
+| **Bytes descargados en total** | 264 bytes (56 + 55 + 153) | 88 bytes |
+| **Tiempo total observado** | ~0.0069s (suma de llamadas) | ~0.0051s (un solo viaje) |
+| **Campos recibidos y no usados (*overfetching*)** | 5 campos (`cliente_id`, `email`, `venta_id`, etc.) | 0 campos (se pidió exactamente lo necesario) |
+| **Consultas SQL en el servidor** | 2 consultas | 2 consultas (optimizadas con DataLoader) |
+
+---
+
+### ✍️ Pregunta N.º 8: Justificación Técnica
+
+> **Pregunta:** *Con sus números a la vista: ¿en qué escenario concreto de su proyecto integrador seguiría prefiriendo REST antes que GraphQL? Justifique con al menos una de las medidas que acaba de tomar.*
+
+**Respuesta y justificación:**
+Se seguiría prefiriendo **REST** en escenarios de **alta concurrencia con lectura de recursos estáticos/públicos (ej. catálogo de productos o reportes frecuentes) y para transferencia de archivos multimedia (imágenes, documentos)**.
+
+**Justificación basada en las medidas:**
+1. **Aprovechamiento de Caché HTTP a nivel de red:** En REST, al usar URLs estáticas como `GET /productos/123`, los navegadores y servidores CDN intermedios pueden almacenar la respuesta en caché mediante cabeceras estándar (`Cache-Control`, `ETag`). Para peticiones repetidas, la medida de **"Viajes de red del cliente" se reduce a 0** y los **"Bytes descargados" se reducen a 0**, algo que en GraphQL no ocurre por defecto porque todas las consultas viajan por método `POST` al mismo endpoint `/`.
+2. **Transferencia de archivos y streaming:** REST maneja de manera nativa la subida y descarga de archivos binarios (`multipart/form-data`) sin la sobrecarga de serializar/deserializar en formato JSON ni requerir procesamiento sintáctico de GraphQL.
