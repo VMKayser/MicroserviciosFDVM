@@ -7,9 +7,10 @@ const PORT = process.env.PORT || 3000;
 conectar()
   .then(() => {
     console.log("Conectado a MongoDB");
-    app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
+    app.listen(PORT, () => console.log(`Servidor REST corriendo en http://localhost:${PORT}`));
   })
   .catch((err) => {
-    console.error("Error conectando a MongoDB:", err);
-    process.exit(1);
+    console.warn("Aviso: MongoDB no disponible (" + err.message + ").");
+    console.log(`Servidor REST corriendo en http://localhost:${PORT} (modo compatible Práctica 4)`);
+    app.listen(PORT);
   });
