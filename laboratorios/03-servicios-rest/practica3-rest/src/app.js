@@ -3,6 +3,7 @@ const swaggerUi = require('swagger-ui-express');
 const doc = require('yamljs').load('./openapi.yaml');
 const { fallo } = require('./errores');
 const { router } = require('./usuarios.rutas');
+const { obtenerEstudiante } = require('./estudiantes.cliente');
 
 const app = express();
 app.use(express.json());
@@ -11,7 +12,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(doc));
 
 app.get('/salud', (_req, res) => res.json({ estado: 'arriba' }));
 
-// ── Compatibilidad con Práctica 4 (Backend for Frontend) ──────────────
+// ── Compatibilidad con Práctica 4 y Práctica 5 ──────────────
 const usuariosBFF = [
   { id: 1, nombre: 'Ana López', email: 'ana@correo.com' },
   { id: 2, nombre: 'Carlos Ruiz', email: 'carlos@correo.com' },
@@ -28,6 +29,23 @@ app.get('/usuarios/:id', (req, res) => {
     return fallo(res, 404, 'NO_ENCONTRADO', 'Usuario no encontrado');
   }
   res.json(usuario);
+});
+
+// Endpoint que consume el servicio gRPC interno
+app.get('/usuarios/:id/expediente', async (req, res) => {
+  const ci = req.params.id === '1' ? '9876543' : req.params.id;
+  try {
+    const estudiante = await obtenerEstudiante(ci);
+    res.json(estudiante);
+  } catch (err) {
+    if (err.code === 5) {
+      return res.status(404).json({ error: 'Estudiante no encontrado en gRPC' });
+    }
+    if (err.code === 14) {
+      return res.status(503).json({ error: 'Servicio gRPC interno no disponible' });
+    }
+    res.status(500).json({ error: err.details || err.message });
+  }
 });
 
 // Endpoints REST de ventas y detalle para mediciones de Laboratorio 7

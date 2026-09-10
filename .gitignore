@@ -16,6 +16,7 @@ recursos/
 
 # Config local de herramientas
 .claude/
+.commandcode/
 .env
 
 # Sistema operativo / editores
