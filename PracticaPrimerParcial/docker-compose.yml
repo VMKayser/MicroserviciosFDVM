@@ -1,0 +1,39 @@
+services:
+  api:
+    build: ./api
+    container_name: api_trabajador
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_URL: mongodb://mongo:27017/trabajadores_db
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - red_parcial
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    container_name: mongo_trabajador
+    ports:
+      - "27017:27017"
+    volumes:
+      - datos_mongo:/data/db
+    networks:
+      - red_parcial
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  datos_mongo:
+
+networks:
+  red_parcial:
+    driver: bridge
