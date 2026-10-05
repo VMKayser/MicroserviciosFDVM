@@ -1,0 +1,113 @@
+services:
+
+  db-pacientes:
+    image: mysql:8.0.36
+    container_name: db-pacientes
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_pacientes_data:/var/lib/mysql
+      - ./ms-pacientes/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks: [clinica-net]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  db-medicos:
+    image: postgres:16.2
+    container_name: db-medicos
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_medicos_data:/var/lib/postgresql/data
+      - ./ms-medicos/init.sql:/docker-entrypoint-initdb.d/init.sql:ro 
+    networks: [clinica-net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db-citas:
+    image: mongo:7.0.12
+    container_name: db-citas
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+    volumes:
+      - db_citas_data:/data/db
+      - ./ms-citas/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro 
+    networks: [clinica-net]
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --eval \"db.adminCommand('ping')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  ms-pacientes:
+    build: ./ms-pacientes
+    image: ms-pacientes:1.0.0
+    container_name: ms-pacientes
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      PORT: ${PACIENTES_PORT:-3001}
+      DB_HOST: db-pacientes
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+    ports:
+      - "${PACIENTES_PORT:-3001}:3001"
+    depends_on:
+      db-pacientes:
+        condition: service_healthy
+    networks: [clinica-net]
+
+  ms-medicos:
+    build: ./ms-medicos
+    image: ms-medicos:1.0.0
+    container_name: ms-medicos
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      PORT: ${MEDICOS_PORT:-50051}
+      DB_HOST: db-medicos
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+    expose:
+      - "50051"
+    ports:
+      - "${MEDICOS_PORT:-50051}:50051"
+    depends_on:
+      db-medicos:
+        condition: service_healthy
+    networks: [clinica-net]
+
+
+networks:
+  clinica-net:
+    driver: bridge
+
+volumes:
+  db_pacientes_data:
+  db_medicos_data:
+  db_citas_data:

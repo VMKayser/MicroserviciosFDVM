@@ -18,6 +18,7 @@ recursos/
 .claude/
 .commandcode/
 .env
+!PrimerParcial/.env
 
 # Sistema operativo / editores
 .DS_Store
