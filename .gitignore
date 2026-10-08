@@ -1,5 +1,6 @@
 # Dependencias
 node_modules/
+coverage/
 
 # Bases de datos locales (se regeneran con npm run seed)
 *.sqlite
